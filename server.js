@@ -13,8 +13,8 @@ var exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 
 // Import routes
-// var routes = require("./controllers/newsController.js");
-// app.use(routes);
+var routes = require("./controllers/newsController.js");
+app.use(routes);
 
 app.listen( PORT, () => {
     console.log("Server listening...");
