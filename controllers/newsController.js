@@ -19,48 +19,34 @@ const newsSource = "https://www.washingtonpost.com/";
 router.get("/api/scrape/", (req, res) => {
     axios.get(newsSource)
         .then((response) => {
-            // console.log(response.data);
-            // res.json(response.data);
+            let articles = [];
             var $ = cheerio.load(response.data);
-            // console.log($(".moat-trackable").find(".headline" ).first());
-            
-            // This works...just trying to simplify
-            // console.log($(".headline").find("a").first().text());
-            // console.log($(".headline").find("a").first().attr("href"));
-            // console.log($(".headline").siblings(".blurb").first().text());
 
             $(".headline").each((i, element) => {
-                
-                let result = {
-                    headline: $(element).find("a").text(),
-                    link: $(element).find("a").attr("href")
-                };
+
+                let headline = $(element).find("a").text();
+                let link = $(element).find("a").attr("href");
 
                 let summary = $(element).siblings(".blurb").text();
-                if (summary != "") {
-                    result.summary = summary;
-                } else {
+                if (summary === "") {
                     summary = $(element).next().find(".blurb").text();
-                    // console.log($(element).next().children(".blurb"));
-                    if (summary != "") {
-                        result.summary = summary;
-                    } else {
-                        result.summary = "No Summary Available";
+                    if (summary === "") {
+                        summary = "No Summary Available";
                     }
+                };
+
+                if (headline != "") {
+                    // console.log({ headline, link, summary })
+                    articles.push({
+                        headline,
+                        link,
+                        summary
+                    });
                 }
-
-                console.log(result);
-
             });
 
-            res.send("Have data");
-            // var result = {
-            //     headline: $("article header").find("a").first().text(),
-            //     link: $("article").find("header a").first().attr("href")
-            // }
-
-            
             // console.log(result);
+            res.send(articles);
         });
 });
 
