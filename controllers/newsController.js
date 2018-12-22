@@ -65,4 +65,25 @@ router.post("/api/article", (req, res) => {
     res.send("Data written")
 });
 
+// Route to get all of the Articles in the database.
+router.get("/articles", (req, res) => {
+  db.Article.find({}).then((dbArticle) => {
+    res.json(dbArticle);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+});
+
+// Route to get one Article
+router.get("/articles/:id", (req, res) => {
+  db.Article.findOne( {_id: req.params.id })
+    .then((dbArticle) => {
+      res.json(dbArticle);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
 module.exports = router;
