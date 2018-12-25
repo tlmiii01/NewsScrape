@@ -78,11 +78,30 @@ router.get("/articles", (req, res) => {
 // Route to get one Article
 router.get("/articles/:id", (req, res) => {
   db.Article.findOne( {_id: req.params.id })
+    .populate("comment")
     .then((dbArticle) => {
       res.json(dbArticle);
     })
     .catch((error) => {
       console.log(error);
+    });
+});
+
+// Route to add a comment to an article
+router.post("/articles/:id", (req, res) => {
+  db.Comment.create(req.body)
+    .then((dbComment) => {
+      return db.Article.findOneAndUpdate(
+        { _id: req.params.id},
+        { $push: { comment: dbComment._id}},
+        { new: true }
+      );
+    })
+    .then( (dbArticle) => {
+      res.json(dbArticle);
+    })
+    .catch((error) => {
+      res.json(err);
     });
 });
 
