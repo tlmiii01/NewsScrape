@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 
 // Route to get to scrape data
 const newsSource = "https://www.washingtonpost.com/";
-router.get("/api/scrape/", (req, res) => {
+router.get("/api/scrape", (req, res) => {
   axios.get(newsSource)
     .then((response) => {
       let articles = [];
@@ -53,7 +53,7 @@ router.get("/api/scrape/", (req, res) => {
 });
 
 // Add a route to add an Article to the database
-router.post("/api/article", (req, res) => {
+router.post("/api/articles", (req, res) => {
   db.Article.create(req.body)
     .then((dbArticle) => {
       console.log(dbArticle);
@@ -62,22 +62,22 @@ router.post("/api/article", (req, res) => {
       console.log(error);
     });
 
-    res.send("Data written")
+  res.send("Data written")
 });
 
 // Route to get all of the Articles in the database.
-router.get("/articles", (req, res) => {
+router.get("/api/articles", (req, res) => {
   db.Article.find({}).then((dbArticle) => {
     res.json(dbArticle);
   })
-  .catch((error) => {
-    console.log(error);
-  });
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 // Route to get one Article
-router.get("/articles/:id", (req, res) => {
-  db.Article.findOne( {_id: req.params.id })
+router.get("/api/articles/:id", (req, res) => {
+  db.Article.findOne({ _id: req.params.id })
     .populate("comment")
     .then((dbArticle) => {
       res.json(dbArticle);
@@ -88,21 +88,37 @@ router.get("/articles/:id", (req, res) => {
 });
 
 // Route to add a comment to an article
-router.post("/articles/:id", (req, res) => {
+router.post("/api/articles/:id", (req, res) => {
   db.Comment.create(req.body)
     .then((dbComment) => {
       return db.Article.findOneAndUpdate(
-        { _id: req.params.id},
-        { $push: { comment: dbComment._id}},
+        { _id: req.params.id },
+        { $push: { comment: dbComment._id } },
         { new: true }
       );
     })
-    .then( (dbArticle) => {
+    .then((dbArticle) => {
       res.json(dbArticle);
     })
     .catch((error) => {
       res.json(err);
     });
 });
+
+// Route to delete a comment.
+// Must remove from Article comment array and the actual comment
+router.delete("/api/comment/:articleId/:commentId", (req, res) => {
+  return db.Article.findByIdAndUpdate(
+    req.params.articleId,
+    { $pull: {comment: req.params.commentId} },
+    {new: true},
+    () => {
+      db.Comment.findByIdAndDelete(req.params.commentId);
+    }
+  )
+  .then((dbArticle) => {
+    res.json(dbArticle);
+  });
+})
 
 module.exports = router;
