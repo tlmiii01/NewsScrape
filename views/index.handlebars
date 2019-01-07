@@ -1,0 +1,9 @@
+<h1>News Scrape</h1>
+<button id="btnScrape" type="button" class="btn btn-primary">Scrape</button>
+
+<ul>
+  <li>Stuff goes here</li>
+  {{#each articles}}
+    {{> article/article-block}}
+  {{/each}}  
+</ul>

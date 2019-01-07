@@ -13,6 +13,7 @@ app.use(express.json());
 // Handlebars
 var exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
 // Import routes
 var routes = require("./controllers/newsController.js");

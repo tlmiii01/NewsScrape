@@ -14,7 +14,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Home Route
 router.get("/", (req, res) => {
-  res.send("Home Page");
+  res.render("index");
 });
 
 // Route to get to scrape data
@@ -22,7 +22,7 @@ const newsSource = "https://www.washingtonpost.com/";
 router.get("/api/scrape", (req, res) => {
   axios.get(newsSource)
     .then((response) => {
-      let articles = [];
+      let articleList = [];
       var $ = cheerio.load(response.data);
 
       $(".headline").each((i, element) => {
@@ -39,8 +39,7 @@ router.get("/api/scrape", (req, res) => {
         };
 
         if (headline != "") {
-          // console.log({ headline, link, summary })
-          articles.push({
+          articleList.push({
             headline,
             link,
             summary
@@ -48,7 +47,11 @@ router.get("/api/scrape", (req, res) => {
         }
       });
 
-      res.send(articles);
+      let hbsObject = {
+        articles: articleList
+      };
+
+      res.render("index", hbsObject);
     });
 });
 
